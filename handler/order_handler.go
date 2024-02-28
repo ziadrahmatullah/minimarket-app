@@ -58,7 +58,7 @@ func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context) {
 }
 
 func (h *OrderHandler) DailyOrderReport(c *gin.Context) {
-	var request dto.DailyRepotReq
+	var request dto.DailyReportReq
 	if err := c.ShouldBindJSON(&request); err != nil {
 		_ = c.Error(err)
 		return
@@ -69,6 +69,25 @@ func (h *OrderHandler) DailyOrderReport(c *gin.Context) {
 		return
 	}
 	orders, err := h.usecase.DailyOrderReport(c.Request.Context(), date)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.Response{Data: orders})
+}
+
+func (h *OrderHandler) MonthlyOrderReport(c *gin.Context) {
+	var request dto.MonthlyReportReq
+	if err := c.ShouldBindJSON(&request); err != nil {
+		_ = c.Error(err)
+		return
+	}
+	date, err := util.ParseDate(request.Date)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	orders, err := h.usecase.MonthlyOrderReport(c.Request.Context(), date)
 	if err != nil {
 		_ = c.Error(err)
 		return

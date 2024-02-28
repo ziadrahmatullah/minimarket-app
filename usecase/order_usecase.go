@@ -18,6 +18,7 @@ type OrderUsecase interface {
 	AddOrder(ctx context.Context, order *entity.Order, productCodes []string, productQty []int) (*entity.Order, error)
 	GetMostOrderedCategories(ctx context.Context) ([]entity.ProductCategory, error)
 	DailyOrderReport(ctx context.Context, date time.Time) ([]*entity.Order, error)
+	MonthlyOrderReport(ctx context.Context, date time.Time) ([]*entity.Order, error)
 	ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 }
 
@@ -139,6 +140,20 @@ func (u *orderUsecase) DailyOrderReport(ctx context.Context, date time.Time) ([]
 	orderQuery := valueobject.NewQuery().
 		Condition("ordered_at", valueobject.GreaterThanEqual, startOfDay).
 		Condition("ordered_at", valueobject.LessThan, endOfDay)
+	fethcedOrder, err := u.orderRepo.Find(ctx, orderQuery)
+	if err != nil {
+		return nil, err
+	}
+	return fethcedOrder, nil
+}
+
+func (u *orderUsecase) MonthlyOrderReport(ctx context.Context, date time.Time) ([]*entity.Order, error) {
+	year, month, _ := date.Date()
+	startOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, date.Location())
+	endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
+	orderQuery := valueobject.NewQuery().
+		Condition("ordered_at", valueobject.GreaterThanEqual, startOfMonth).
+		Condition("ordered_at", valueobject.LessThan, endOfMonth)
 	fethcedOrder, err := u.orderRepo.Find(ctx, orderQuery)
 	if err != nil {
 		return nil, err

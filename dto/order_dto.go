@@ -123,7 +123,11 @@ func (p *ReportDailyQueryParamReq) ToQuery() *valueobject.Query {
 	return query
 }
 
-type DailyRepotReq struct{
+type DailyReportReq struct{
+	Date string `json:"date" binding:"required"`
+}
+
+type MonthlyReportReq struct{
 	Date string `json:"date" binding:"required"`
 }
 

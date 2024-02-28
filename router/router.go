@@ -43,6 +43,7 @@ func New(handlers Handlers) http.Handler {
 	order.GET("/best-categories", middleware.Auth(entity.RoleUser), handlers.Order.GetMostOrderedCategories)
 	order.GET("/history", middleware.Auth(entity.RoleUser), handlers.Order.OrderHistory)
 	order.GET("/daily-report", middleware.Auth(entity.RoleUser), handlers.Order.DailyOrderReport)
+	order.GET("/monthly-report", middleware.Auth(entity.RoleUser), handlers.Order.MonthlyOrderReport)
 	return router
 }
 
