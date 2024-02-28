@@ -12,6 +12,7 @@ import (
 
 type Handlers struct {
 	User *handler.UserHandler
+	Auth *handler.AuthHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -25,6 +26,9 @@ func New(handlers Handlers) http.Handler {
 
 	user := router.Group("/users")
 	user.GET("", handlers.User.GetAllUser)
+
+	auth := router.Group("/auth")
+	auth.POST("", handlers.Auth.Register)
 
 	return router
 }

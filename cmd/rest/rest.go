@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/go-resty/resty/v2"
+	"github.com/ziadrahmatullah/minimarket-app/appjwt"
 	"github.com/ziadrahmatullah/minimarket-app/handler"
+	"github.com/ziadrahmatullah/minimarket-app/hasher"
 	"github.com/ziadrahmatullah/minimarket-app/logger"
 	"github.com/ziadrahmatullah/minimarket-app/repository"
 	"github.com/ziadrahmatullah/minimarket-app/router"
@@ -22,15 +24,19 @@ func main() {
 	client.SetHeader("Content-Type", "application/json")
 
 	// manager := transactor.NewManager(db)
-	// hash := hasher.NewHasher()
-	// jwt := appjwt.NewJwt()
+	hash := hasher.NewHasher()
+	jwt := appjwt.NewJwt()
 	// appvalidator.RegisterCustomValidator()
 	userR := repository.NewUserRepository(db)
 	userU := usecase.NewUserUsecase(userR)
 	userH := handler.NewUserHandler(userU)
 
+	authU := usecase.NewAuthUsecase(userR, jwt, hash)
+	authH := handler.NewAuthHandler(authU)
+
 	handlers := router.Handlers{
 		User: userH,
+		Auth: authH,
 	}
 
 	r := router.New(handlers)
