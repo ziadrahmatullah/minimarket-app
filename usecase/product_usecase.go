@@ -11,6 +11,7 @@ import (
 
 type ProductUsecase interface {
 	AddProduct(ctx context.Context, product *entity.Product) error
+	ListAllProduct(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 }
 
 type productUsecase struct {
@@ -49,4 +50,14 @@ func (u *productUsecase) AddProduct(ctx context.Context, product *entity.Product
 		return err
 	}
 	return nil
+}
+
+func (u *productUsecase) ListAllProduct(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
+	query.WithJoin("ProductCategory")
+	pagedResult, err := u.productRepo.FindAllProducts(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return pagedResult, nil
 }

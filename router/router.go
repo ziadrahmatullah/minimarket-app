@@ -36,6 +36,7 @@ func New(handlers Handlers) http.Handler {
 
 	product := router.Group("/products")
 	product.POST("", middleware.Auth(entity.RoleUser), handlers.Product.AddProduct)
+	product.GET("", middleware.Auth(entity.RoleUser), handlers.Product.ListProduct)
 
 	order := router.Group("/order")
 	order.POST("", middleware.Auth(entity.RoleUser), handlers.Order.AddOrder)
