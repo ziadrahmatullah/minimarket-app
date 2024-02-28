@@ -23,7 +23,7 @@ func Seed(db *gorm.DB) {
 	products := []*entity.Product{
 		{Name: "Aqua", ProductCategoryId: 2, ProductCode: "MIN-001", Stock: 6, Price: decimal.NewFromInt(3000)},
 		{Name: "Le Mineral", ProductCategoryId: 2, ProductCode: "MIN-002", Stock: 5, Price: decimal.NewFromInt(4000)},
-		{Name: "Oreo", ProductCategoryId: 1, ProductCode: "MIN-001", Stock: 4, Price: decimal.NewFromInt(6000)},
+		{Name: "Oreo", ProductCategoryId: 1, ProductCode: "MAK-001", Stock: 4, Price: decimal.NewFromInt(6000)},
 		{Name: "Baju Biru", ProductCategoryId: 3, ProductCode: "PAK-001", Stock: 2, Price: decimal.NewFromInt(7000)},
 	}
 	db.Create(users)
