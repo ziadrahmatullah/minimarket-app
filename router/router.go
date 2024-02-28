@@ -15,6 +15,7 @@ type Handlers struct {
 	User    *handler.UserHandler
 	Auth    *handler.AuthHandler
 	Product *handler.ProductHandler
+	Order   *handler.OrderHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -35,6 +36,9 @@ func New(handlers Handlers) http.Handler {
 
 	product := router.Group("/products")
 	product.POST("", middleware.Auth(entity.RoleUser), handlers.Product.AddProduct)
+
+	order := router.Group("/order")
+	order.POST("", middleware.Auth(entity.RoleUser), handlers.Order.AddOrder)
 	return router
 }
 

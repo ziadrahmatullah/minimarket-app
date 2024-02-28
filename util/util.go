@@ -28,3 +28,14 @@ func GenerateRandomString(length int) string {
 	}
 	return string(b)
 }
+
+func IsUnique(array []string) bool {
+	seen := make(map[string]bool)
+	for _, value := range array {
+		if seen[value] {
+			return false
+		}
+		seen[value] = true
+	}
+	return true
+}
