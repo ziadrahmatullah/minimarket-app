@@ -45,5 +45,5 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.Response{Data: dto.LoginRes{AccessToken: tokenUser}})
+	c.JSON(http.StatusOK, dto.LoginRes{AccessToken: tokenUser})
 }

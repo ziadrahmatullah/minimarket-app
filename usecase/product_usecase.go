@@ -36,13 +36,13 @@ func (u *productUsecase) AddProduct(ctx context.Context, product *entity.Product
 	if fetchedProductCategory == nil {
 		return apperror.NewResourceNotFoundError("product category", "id", product.ProductCategoryId)
 	}
-	productQuery := valueobject.NewQuery().Condition("name", valueobject.Equal, product.Name)
+	productQuery := valueobject.NewQuery().Condition("product_code", valueobject.Equal, product.ProductCode)
 	fetchedProduct, err := u.productRepo.FindOne(ctx, productQuery)
 	if err != nil {
 		return err
 	}
-	if fetchedProduct == nil {
-		return apperror.NewResourceAlreadyExistError("product", "name", product.Name)
+	if fetchedProduct != nil {
+		return apperror.NewResourceAlreadyExistError("product", "produc_code", product.Name)
 	}
 	_, err = u.productRepo.Create(ctx, product)
 	if err != nil {

@@ -1,6 +1,7 @@
 package migration
 
 import (
+	"github.com/shopspring/decimal"
 	"github.com/ziadrahmatullah/minimarket-app/entity"
 	"github.com/ziadrahmatullah/minimarket-app/hasher"
 	"gorm.io/gorm"
@@ -14,8 +15,20 @@ func Seed(db *gorm.DB) {
 		{Email: "doni@example.com", Username: "doni", Password: hashPassword("Doni12345"), Role: entity.RoleUser, IsVerified: true},
 		{Email: "david@example.com", Username: "david", Password: hashPassword("David12345"), Role: entity.RoleUser, IsVerified: true},
 	}
-
+	productCategory := []*entity.ProductCategory{
+		{Name: "Makanan"},
+		{Name: "Minuman"},
+		{Name: "Pakaian"},
+	}
+	products := []*entity.Product{
+		{Name: "Aqua", ProductCategoryId: 2, ProductCode: "MIN-001", Stock: 6, Price: decimal.NewFromInt(3000)},
+		{Name: "Le Mineral", ProductCategoryId: 2, ProductCode: "MIN-002", Stock: 5, Price: decimal.NewFromInt(4000)},
+		{Name: "Oreo", ProductCategoryId: 1, ProductCode: "MIN-001", Stock: 4, Price: decimal.NewFromInt(6000)},
+		{Name: "Baju Biru", ProductCategoryId: 3, ProductCode: "PAK-001", Stock: 2, Price: decimal.NewFromInt(7000)},
+	}
 	db.Create(users)
+	db.Create(productCategory)
+	db.Create(products)
 }
 
 func hashPassword(text string) string {
