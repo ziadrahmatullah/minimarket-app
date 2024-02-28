@@ -40,6 +40,7 @@ func New(handlers Handlers) http.Handler {
 	order := router.Group("/order")
 	order.POST("", middleware.Auth(entity.RoleUser), handlers.Order.AddOrder)
 	order.GET("/best-categories", middleware.Auth(entity.RoleUser), handlers.Order.GetMostOrderedCategories)
+	order.GET("/daily-report", middleware.Auth(entity.RoleUser), handlers.Order.DailyOrderReport)
 	return router
 }
 

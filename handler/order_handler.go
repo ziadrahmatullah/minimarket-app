@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ziadrahmatullah/minimarket-app/dto"
+	"github.com/ziadrahmatullah/minimarket-app/entity"
 	"github.com/ziadrahmatullah/minimarket-app/usecase"
 )
 
@@ -51,4 +52,26 @@ func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context) {
 		})
 	}
 	c.JSON(http.StatusOK, dto.Response{Data: result})
+}
+
+func (h *OrderHandler) DailyOrderReport(c *gin.Context){
+	var requestParam dto.ReportDailyQueryParamReq
+	if err := c.ShouldBindQuery(&requestParam); err != nil {
+		_ = c.Error(err)
+		return
+	}
+	query := requestParam.ToQuery()
+	pageResult, err := h.usecase.DailyOrderReport(c.Request.Context(), query)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	orders := pageResult.Data.([]*entity.Order)
+	c.JSON(http.StatusOK, dto.Response{
+		Data:        orders,
+		TotalPage:   &pageResult.TotalPage,
+		TotalItem:   &pageResult.TotalItem,
+		CurrentPage: &pageResult.CurrentPage,
+		CurrentItem: &pageResult.CurrentItems,
+	})
 }
