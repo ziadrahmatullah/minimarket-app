@@ -95,28 +95,6 @@ func (h *OrderHandler) MonthlyOrderReport(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Response{Data: orders})
 }
 
-// func (h *OrderHandler) DailyOrderReport(c *gin.Context) {
-// 	var requestParam dto.ReportDailyQueryParamReq
-// 	if err := c.ShouldBindQuery(&requestParam); err != nil {
-// 		_ = c.Error(err)
-// 		return
-// 	}
-// 	query := requestParam.ToQuery()
-// 	pageResult, err := h.usecase.DailyOrderReport(c.Request.Context(), query)
-// 	if err != nil {
-// 		_ = c.Error(err)
-// 		return
-// 	}
-// 	orders := pageResult.Data.([]*entity.Order)
-// 	c.JSON(http.StatusOK, dto.Response{
-// 		Data:        orders,
-// 		TotalPage:   &pageResult.TotalPage,
-// 		TotalItem:   &pageResult.TotalItem,
-// 		CurrentPage: &pageResult.CurrentPage,
-// 		CurrentItem: &pageResult.CurrentItems,
-// 	})
-// }
-
 func (h *OrderHandler) OrderHistory(c *gin.Context) {
 	var request dto.OrderHistoryParam
 	if err := c.ShouldBindQuery(&request); err != nil {

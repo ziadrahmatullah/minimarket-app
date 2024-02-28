@@ -130,10 +130,6 @@ func (u *orderUsecase) GetMostOrderedCategories(ctx context.Context) ([]entity.P
 	return u.orderItemRepo.GetMostOrderedCategories(ctx)
 }
 
-// func (u *orderUsecase) DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
-// 	return u.orderRepo.DailyOrderReport(ctx, query)
-// }
-
 func (u *orderUsecase) DailyOrderReport(ctx context.Context, date time.Time) ([]*entity.Order, error) {
 	startOfDay := date.Truncate(24 * time.Hour)
 	endOfDay := startOfDay.Add(24 * time.Hour)
