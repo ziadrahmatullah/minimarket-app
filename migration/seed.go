@@ -13,7 +13,6 @@ func Seed(db *gorm.DB) {
 		{Email: "charlie@example.com", Username: "charlie", Password: hashPassword("Charlie12345"), Role: entity.RoleUser, IsVerified: true},
 		{Email: "doni@example.com", Username: "doni", Password: hashPassword("Doni12345"), Role: entity.RoleUser, IsVerified: true},
 		{Email: "david@example.com", Username: "david", Password: hashPassword("David12345"), Role: entity.RoleUser, IsVerified: true},
-		{Email: "daniel@example.com", Username: "daniel", Password: hashPassword("Daniel12345"), Role: entity.RoleAdmin, IsVerified: true},
 	}
 
 	db.Create(users)
