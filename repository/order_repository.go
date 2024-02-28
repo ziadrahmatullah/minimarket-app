@@ -15,6 +15,7 @@ import (
 type OrderRepository interface {
 	BaseRepository[entity.Order]
 	DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
+	FindAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 }
 
 type orderRepository struct {
@@ -45,6 +46,23 @@ func (r *orderRepository) DailyOrderReport(ctx context.Context, query *valueobje
 			endOfDay := startOfDay.Add(24 * time.Hour)
 			db.Where("\"orders\".ordered_at >= ? AND \"orders\".ordered_at < = ?", startOfDay, endOfDay)
 		}
+		return db
+	})
+}
+
+func (r *orderRepository) FindAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
+	return r.paginate(ctx, query, func(db *gorm.DB) *gorm.DB {
+		switch strings.Split(query.GetOrder(), " ")[0] {
+		case "price":
+			query.WithSortBy("\"total_payment\"")
+		case "order_date":
+			query.WithSortBy("\"ordered_at\"")
+		}
+		db.Joins("LEFT JOIN order_items ON orders.id = order_items.order_id").
+			Joins("LEFT JOIN products ON products.id = order_items.product_id")
+
+		db.Group("orders.id")
+		db.Preload("OrderItems.Product")
 		return db
 	})
 }

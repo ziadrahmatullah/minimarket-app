@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ziadrahmatullah/minimarket-app/dto"
@@ -54,24 +56,72 @@ func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Response{Data: result})
 }
 
-func (h *OrderHandler) DailyOrderReport(c *gin.Context){
-	var requestParam dto.ReportDailyQueryParamReq
-	if err := c.ShouldBindQuery(&requestParam); err != nil {
+// func (h *OrderHandler) DailyOrderReport(c *gin.Context){
+// 	var requestParam dto.ReportDailyQueryParamReq
+// 	if err := c.ShouldBindQuery(&requestParam); err != nil {
+// 		_ = c.Error(err)
+// 		return
+// 	}
+// 	query := requestParam.ToQuery()
+// 	pageResult, err := h.usecase.DailyOrderReport(c.Request.Context(), query)
+// 	if err != nil {
+// 		_ = c.Error(err)
+// 		return
+// 	}
+// 	orders := pageResult.Data.([]*entity.Order)
+// 	c.JSON(http.StatusOK, dto.Response{
+// 		Data:        orders,
+// 		TotalPage:   &pageResult.TotalPage,
+// 		TotalItem:   &pageResult.TotalItem,
+// 		CurrentPage: &pageResult.CurrentPage,
+// 		CurrentItem: &pageResult.CurrentItems,
+// 	})
+// }
+
+func (h *OrderHandler) OrderHistory(c *gin.Context) {
+	var request dto.OrderHistoryParam
+	if err := c.ShouldBindQuery(&request); err != nil {
 		_ = c.Error(err)
 		return
 	}
-	query := requestParam.ToQuery()
-	pageResult, err := h.usecase.DailyOrderReport(c.Request.Context(), query)
+	query, err := request.ToQuery()
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	orders := pageResult.Data.([]*entity.Order)
-	c.JSON(http.StatusOK, dto.Response{
-		Data:        orders,
-		TotalPage:   &pageResult.TotalPage,
-		TotalItem:   &pageResult.TotalItem,
-		CurrentPage: &pageResult.CurrentPage,
-		CurrentItem: &pageResult.CurrentItems,
+	pagedResult, err := h.usecase.ListAllOrders(c.Request.Context(), query)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	var listOrders []*dto.OrderHistoryResponse
+	data := pagedResult.Data.([]*entity.Order)
+	var orders *dto.OrderHistoryResponse
+	for i, item := range data {
+		orders = &dto.OrderHistoryResponse{
+			Id:            fmt.Sprintf("%s%04d", "7", item.Id),
+			OrderDate:     item.OrderedAt.Format(time.RFC3339),
+			TotalPayment:  item.TotalPayment.String(),
+			Payment:       item.Payment.String(),
+			PaymentReturn: item.PaymentReturn.String(),
+			PaymentMethod: item.PaymentMethod,
+		}
+		for _, order := range data[i].OrderItems {
+			orderItem := &dto.OrderItemResponse{
+				Id:       order.ProductId,
+				Name:     order.Product.Name,
+				Quantity: order.Quantity,
+				SubTotal: order.SubTotal.String(),
+			}
+			orders.OrderItem = append(orders.OrderItem, orderItem)
+		}
+		listOrders = append(listOrders, orders)
+	}
+	c.JSON(200, dto.Response{
+		Data:        listOrders,
+		CurrentPage: &pagedResult.CurrentPage,
+		CurrentItem: &pagedResult.CurrentItems,
+		TotalPage:   &pagedResult.TotalPage,
+		TotalItem:   &pagedResult.TotalItem,
 	})
 }

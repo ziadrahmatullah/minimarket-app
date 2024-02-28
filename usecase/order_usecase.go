@@ -16,6 +16,7 @@ type OrderUsecase interface {
 	AddOrder(ctx context.Context, order *entity.Order, productCodes []string, productQty []int) (*entity.Order, error)
 	GetMostOrderedCategories(ctx context.Context) ([]entity.ProductCategory, error)
 	DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
+	ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 }
 
 type orderUsecase struct {
@@ -105,4 +106,8 @@ func (u *orderUsecase) GetMostOrderedCategories(ctx context.Context) ([]entity.P
 
 func (u *orderUsecase) DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
 	return u.orderRepo.DailyOrderReport(ctx, query)
+}
+
+func (u *orderUsecase) ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
+	return u.orderRepo.FindAllOrders(ctx, query)
 }
