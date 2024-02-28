@@ -32,3 +32,8 @@ func (r *AddOrderReq) ToOrder() (*entity.Order, error) {
 		PaymentMethod: r.PaymentMethod,
 	}, nil
 }
+
+type BestCategoriesRes struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}

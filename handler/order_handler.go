@@ -33,15 +33,22 @@ func (h *OrderHandler) AddOrder(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, dto.Response{Data: dto.AddOrderRes{
-		TotalPayment: order.TotalPayment.String(), 
+		TotalPayment:  order.TotalPayment.String(),
 		PaymentReturn: order.PaymentReturn.String()}})
 }
 
-func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context){
+func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context) {
 	categories, err := h.usecase.GetMostOrderedCategories(c.Request.Context())
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.Response{Data: categories})
+	var result []*dto.BestCategoriesRes
+	for _, category := range categories {
+		result = append(result, &dto.BestCategoriesRes{
+			Name:  category.Name,
+			Count: category.OrderCount,
+		})
+	}
+	c.JSON(http.StatusOK, dto.Response{Data: result})
 }

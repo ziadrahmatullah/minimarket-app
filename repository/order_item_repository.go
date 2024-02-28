@@ -33,36 +33,20 @@ func (r *orderItemRepository) BulkCreate(ctx context.Context, orderItems []*enti
 	return nil
 }
 
-type ProductCategoryOrderCount struct {
-	ProductCategoryId uint
-	OrderCount        int
-}
-
 func (r *orderItemRepository) GetMostOrderedCategories(ctx context.Context) ([]entity.ProductCategory, error) {
-	var categories []entity.ProductCategory
-	var categoryCounts []ProductCategoryOrderCount
+	var categoryCounts []entity.ProductCategory
 
 	err := r.conn(ctx).Model(&entity.OrderItem{}).
-		Select("products.product_category_id, COUNT(*) as order_count").
+		Select("products.product_category_id, product_categories.name AS name, COUNT(*) as order_count").
 		Joins("JOIN products ON order_items.product_id = products.id").
-		Group("products.product_category_id").
+		Joins("JOIN product_categories ON products.product_category_id = product_categories.id").
+		Group("products.product_category_id, product_categories.name").
 		Order("order_count desc").
 		Scan(&categoryCounts).
 		Error
 	if err != nil {
 		return nil, err
 	}
-	categoryIDs := make([]uint, len(categoryCounts))
-	for i, categoryCount := range categoryCounts {
-		categoryIDs[i] = categoryCount.ProductCategoryId
-	}
 
-	err = r.conn(ctx).Model(&entity.OrderItem{}).
-		Where("id IN (?)", categoryIDs).Find(&categories).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return categories, nil
+	return categoryCounts, nil
 }

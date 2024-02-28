@@ -7,11 +7,10 @@ import (
 )
 
 type ProductCategory struct {
-	Id        uint   `gorm:"primaryKey;autoIncrement"`
-	Name      string `gorm:"not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
+	Id         uint   `gorm:"primaryKey;autoIncrement"`
+	Name       string `gorm:"not null"`
+	OrderCount int
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt
 }
-
-
