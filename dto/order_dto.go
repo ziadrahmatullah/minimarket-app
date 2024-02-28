@@ -7,6 +7,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/ziadrahmatullah/minimarket-app/apperror"
 	"github.com/ziadrahmatullah/minimarket-app/entity"
+	"github.com/ziadrahmatullah/minimarket-app/util"
 	"github.com/ziadrahmatullah/minimarket-app/valueobject"
 )
 
@@ -84,43 +85,47 @@ type OrderHistoryResponse struct {
 	PaymentMethod string               `json:"payment_method"`
 }
 
-// type ReportDailyQueryParamReq struct {
-// 	Date   *string `form:"date"`
-// 	SortBy *string `form:"sort_by" binding:"omitempty,oneof=date"`
-// 	Order  *string `form:"order" binding:"omitempty,oneof=asc desc"`
-// 	Limit  *int    `form:"limit" binding:"omitempty,numeric,min=1"`
-// 	Page   *int    `form:"page" binding:"omitempty,numeric,min=1"`
-// }
+type ReportDailyQueryParamReq struct {
+	Date   *string `form:"date"`
+	SortBy *string `form:"sort_by" binding:"omitempty,oneof=date"`
+	Order  *string `form:"order" binding:"omitempty,oneof=asc desc"`
+	Limit  *int    `form:"limit" binding:"omitempty,numeric,min=1"`
+	Page   *int    `form:"page" binding:"omitempty,numeric,min=1"`
+}
 
-// func (p *ReportDailyQueryParamReq) ToQuery() *valueobject.Query {
-// 	query := valueobject.NewQuery()
+func (p *ReportDailyQueryParamReq) ToQuery() *valueobject.Query {
+	query := valueobject.NewQuery()
 
-// 	if p.Page != nil {
-// 		query.WithPage(*p.Page)
-// 	}
-// 	if p.Limit != nil {
-// 		query.WithLimit(*p.Limit)
-// 	}
+	if p.Page != nil {
+		query.WithPage(*p.Page)
+	}
+	if p.Limit != nil {
+		query.WithLimit(*p.Limit)
+	}
 
-// 	if p.Order != nil {
-// 		query.WithOrder(valueobject.Order(*p.Order))
-// 	}
+	if p.Order != nil {
+		query.WithOrder(valueobject.Order(*p.Order))
+	}
 
-// 	if p.SortBy != nil {
-// 		query.WithSortBy(*p.SortBy)
-// 	} else {
-// 		query.WithSortBy("id")
-// 	}
+	if p.SortBy != nil {
+		query.WithSortBy(*p.SortBy)
+	} else {
+		query.WithSortBy("id")
+	}
 
-// 	if p.Date != nil {
-// 		date, _ := util.ParseDate(*p.Date)
-// 		startOfDay := date.Truncate(24 * time.Hour)
-// 		endOfDay := startOfDay.Add(24 * time.Hour)
-// 		query.Condition("ordered_at", valueobject.GreaterThanEqual, startOfDay).
-// 		Condition("ordered_at", valueobject.LessThan, endOfDay)
-// 	}
-// 	return query
-// }
+	if p.Date != nil {
+		date, _ := util.ParseDate(*p.Date)
+		startOfDay := date.Truncate(24 * time.Hour)
+		endOfDay := startOfDay.Add(24 * time.Hour)
+		query.Condition("ordered_at", valueobject.GreaterThanEqual, startOfDay).
+			Condition("ordered_at", valueobject.LessThan, endOfDay)
+	}
+	return query
+}
+
+type DailyRepotReq struct{
+	Date string `json:"date" binding:"required"`
+}
 
 // type ReportMonthlyQueryParamReq struct {
 // 	Date   *string `form:"date"`
@@ -156,7 +161,7 @@ type OrderHistoryResponse struct {
 // 		startOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
 // 		endOfMonth := startOfMonth.AddDate(0, 1, 0)
 // 		query.Condition("ordered_at", valueobject.GreaterThanEqual, startOfMonth).
-// 		Condition("ordered_at", valueobject.LessThan, endOfMonth)
+// 			Condition("ordered_at", valueobject.LessThan, endOfMonth)
 // 	}
 // 	return query
 // }

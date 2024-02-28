@@ -9,6 +9,7 @@ import (
 	"github.com/ziadrahmatullah/minimarket-app/dto"
 	"github.com/ziadrahmatullah/minimarket-app/entity"
 	"github.com/ziadrahmatullah/minimarket-app/usecase"
+	"github.com/ziadrahmatullah/minimarket-app/util"
 )
 
 type OrderHandler struct {
@@ -56,7 +57,26 @@ func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Response{Data: result})
 }
 
-// func (h *OrderHandler) DailyOrderReport(c *gin.Context){
+func (h *OrderHandler) DailyOrderReport(c *gin.Context) {
+	var request dto.DailyRepotReq
+	if err := c.ShouldBindJSON(&request); err != nil {
+		_ = c.Error(err)
+		return
+	}
+	date, err := util.ParseDate(request.Date)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	orders, err := h.usecase.DailyOrderReport(c.Request.Context(), date)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.Response{Data: orders})
+}
+
+// func (h *OrderHandler) DailyOrderReport(c *gin.Context) {
 // 	var requestParam dto.ReportDailyQueryParamReq
 // 	if err := c.ShouldBindQuery(&requestParam); err != nil {
 // 		_ = c.Error(err)

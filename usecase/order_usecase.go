@@ -17,7 +17,7 @@ import (
 type OrderUsecase interface {
 	AddOrder(ctx context.Context, order *entity.Order, productCodes []string, productQty []int) (*entity.Order, error)
 	GetMostOrderedCategories(ctx context.Context) ([]entity.ProductCategory, error)
-	DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
+	DailyOrderReport(ctx context.Context, date time.Time) ([]*entity.Order, error)
 	ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 }
 
@@ -129,8 +129,21 @@ func (u *orderUsecase) GetMostOrderedCategories(ctx context.Context) ([]entity.P
 	return u.orderItemRepo.GetMostOrderedCategories(ctx)
 }
 
-func (u *orderUsecase) DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
-	return u.orderRepo.DailyOrderReport(ctx, query)
+// func (u *orderUsecase) DailyOrderReport(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
+// 	return u.orderRepo.DailyOrderReport(ctx, query)
+// }
+
+func (u *orderUsecase) DailyOrderReport(ctx context.Context, date time.Time) ([]*entity.Order, error) {
+	startOfDay := date.Truncate(24 * time.Hour)
+	endOfDay := startOfDay.Add(24 * time.Hour)
+	orderQuery := valueobject.NewQuery().
+		Condition("ordered_at", valueobject.GreaterThanEqual, startOfDay).
+		Condition("ordered_at", valueobject.LessThan, endOfDay)
+	fethcedOrder, err := u.orderRepo.Find(ctx, orderQuery)
+	if err != nil {
+		return nil, err
+	}
+	return fethcedOrder, nil
 }
 
 func (u *orderUsecase) ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
