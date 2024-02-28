@@ -28,7 +28,8 @@ func New(handlers Handlers) http.Handler {
 	user.GET("", handlers.User.GetAllUser)
 
 	auth := router.Group("/auth")
-	auth.POST("", handlers.Auth.Register)
+	auth.POST("/register", handlers.Auth.Register)
+	auth.POST("/login", handlers.Auth.Login)
 
 	return router
 }

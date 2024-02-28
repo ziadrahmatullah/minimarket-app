@@ -7,8 +7,19 @@ type RegisterReq struct {
 	Password string `binding:"required" json:"password"`
 }
 
-
 func (r *RegisterReq) ToUser() *entity.User {
+	return &entity.User{
+		Email:    r.Email,
+		Password: r.Password,
+	}
+}
+
+type LoginReq struct {
+	Email    string `binding:"required,email" json:"email"`
+	Password string `binding:"required" json:"password"`
+}
+
+func (r *LoginReq) ToUser() *entity.User {
 	return &entity.User{
 		Email:    r.Email,
 		Password: r.Password,

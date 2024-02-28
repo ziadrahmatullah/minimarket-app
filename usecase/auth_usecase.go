@@ -14,6 +14,7 @@ import (
 
 type AuthUsecase interface {
 	Register(ctx context.Context, data *entity.User) error
+	Login(ctx context.Context, user *entity.User) (string, error)
 }
 
 type authUsecase struct {
@@ -56,4 +57,23 @@ func (u *authUsecase) Register(ctx context.Context, user *entity.User) error {
 		return err
 	}
 	return nil
+}
+
+func (u *authUsecase) Login(ctx context.Context, user *entity.User) (string, error) {
+	emailQuery := valueobject.NewQuery().Condition("email", valueobject.Equal, user.Email)
+	fetchedUser, err := u.userRepo.FindOne(ctx, emailQuery)
+	if err != nil {
+		return "", err
+	}
+	if fetchedUser == nil {
+		return "", apperror.NewResourceNotFoundError("user", "email", user.Email)
+	}
+	if !(u.hash.Compare(fetchedUser.Password, user.Password)) {
+		return "", apperror.NewInvalidCredentialsError()
+	}
+	token, err := u.jwt.GenerateToken(fetchedUser)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
