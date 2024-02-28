@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/shopspring/decimal"
 	"github.com/ziadrahmatullah/minimarket-app/apperror"
@@ -86,6 +88,29 @@ func (u *orderUsecase) AddOrder(ctx context.Context, order *entity.Order, produc
 		if order.Payment.LessThan(totalPayment) {
 			return apperror.NewResourceStateError("your money is not enough")
 		}
+		if decimal.NewFromInt(100000).LessThan(totalPayment) {
+			minumanId := 2
+			productBonusQ := valueobject.NewQuery().
+				Condition("product_category_id", valueobject.Equal, minumanId).
+				Condition("stock", valueobject.GreaterThan, 0)
+			fetchedProductBonus, err := u.productRepo.Find(c, productBonusQ)
+			if err != nil {
+				return err
+			}
+			productBonus := getRandomValueFromArray(fetchedProductBonus)
+			productBonus.Stock--
+			_, err = u.productRepo.Update(c, productBonus)
+			if err != nil {
+				return err
+			}
+			orderItem := &entity.OrderItem{
+				OrderId:   newOrder.Id,
+				ProductId: productBonus.Id,
+				Quantity:  1,
+				SubTotal:  decimal.Zero,
+			}
+			orderItems = append(orderItems, orderItem)
+		}
 		newOrder.PaymentReturn = order.Payment.Sub(totalPayment)
 		err = u.orderItemRepo.BulkCreate(c, orderItems)
 		if err != nil {
@@ -110,4 +135,10 @@ func (u *orderUsecase) DailyOrderReport(ctx context.Context, query *valueobject.
 
 func (u *orderUsecase) ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
 	return u.orderRepo.FindAllOrders(ctx, query)
+}
+
+func getRandomValueFromArray(arr []*entity.Product) *entity.Product {
+	rand.Seed(time.Now().UnixNano())
+	randomIndex := rand.Intn(len(arr))
+	return arr[randomIndex]
 }
