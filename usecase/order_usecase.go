@@ -14,6 +14,7 @@ import (
 
 type OrderUsecase interface {
 	AddOrder(ctx context.Context, order *entity.Order, productCodes []string, productQty []int) (*entity.Order, error)
+	GetMostOrderedCategories(ctx context.Context) ([]entity.ProductCategory, error)
 }
 
 type orderUsecase struct {
@@ -95,4 +96,8 @@ func (u *orderUsecase) AddOrder(ctx context.Context, order *entity.Order, produc
 		return nil
 	})
 	return order, err
+}
+
+func (u *orderUsecase) GetMostOrderedCategories(ctx context.Context) ([]entity.ProductCategory, error) {
+	return u.orderItemRepo.GetMostOrderedCategories(ctx)
 }

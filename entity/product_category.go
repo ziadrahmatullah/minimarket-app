@@ -13,3 +13,5 @@ type ProductCategory struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 }
+
+

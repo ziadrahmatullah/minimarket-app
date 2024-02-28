@@ -29,3 +29,5 @@ func (r *AddProductReq) ToProduct() (*entity.Product, error) {
 		Price:             Price,
 	}, nil
 }
+
+

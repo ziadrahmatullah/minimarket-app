@@ -32,7 +32,16 @@ func (h *OrderHandler) AddOrder(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.AddOrderRes{
+	c.JSON(http.StatusOK, dto.Response{Data: dto.AddOrderRes{
 		TotalPayment: order.TotalPayment.String(), 
-		PaymentReturn: order.PaymentReturn.String()})
+		PaymentReturn: order.PaymentReturn.String()}})
+}
+
+func (h *OrderHandler) GetMostOrderedCategories(c *gin.Context){
+	categories, err := h.usecase.GetMostOrderedCategories(c.Request.Context())
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.Response{Data: categories})
 }
