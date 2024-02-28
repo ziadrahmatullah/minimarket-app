@@ -9,6 +9,7 @@ import (
 	"github.com/ziadrahmatullah/minimarket-app/repository"
 	"github.com/ziadrahmatullah/minimarket-app/transactor"
 	"github.com/ziadrahmatullah/minimarket-app/util"
+	"github.com/ziadrahmatullah/minimarket-app/valueobject"
 )
 
 type OrderUsecase interface {
@@ -41,18 +42,20 @@ func (u *orderUsecase) AddOrder(ctx context.Context, order *entity.Order, produc
 		return nil, apperror.NewResourceStateError("product and qty not match")
 	}
 	if !util.IsUnique(productCodes) {
-		return nil,apperror.NewResourceStateError("product codes must be unique")
+		return nil, apperror.NewResourceStateError("product codes must be unique")
 	}
-	fetchedProducts, err := u.productRepo.FindUnique(ctx, productCodes)
+	productQ := valueobject.NewQuery().Condition("product_code", valueobject.In, productCodes).Lock()
+	fetchedProducts, err := u.productRepo.Find(ctx, productQ)
+	// fetchedProducts, err := u.productRepo.FindUnique(ctx, productCodes)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	if len(productCodes) != len(fetchedProducts) {
-		return nil,apperror.NewResourceNotFoundError("products", "product_code", productCodes)
+		return nil, apperror.NewResourceNotFoundError("products", "product_code", productCodes)
 	}
 	for i, product := range fetchedProducts {
 		if product.Stock < productQty[i] {
-			return nil,apperror.NewResourceStateError("product out of stock")
+			return nil, apperror.NewResourceStateError("product out of stock")
 		}
 	}
 	err = u.manager.Run(ctx, func(c context.Context) error {
@@ -71,6 +74,11 @@ func (u *orderUsecase) AddOrder(ctx context.Context, order *entity.Order, produc
 			}
 			totalPayment = totalPayment.Add(orderItem.SubTotal)
 			orderItems = append(orderItems, orderItem)
+			product.Stock -= productQty[i]
+			_, err = u.productRepo.Update(c, product)
+			if err != nil {
+				return err
+			}
 		}
 		newOrder.TotalPayment = totalPayment
 		if order.Payment.LessThan(totalPayment) {
