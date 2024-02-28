@@ -6,7 +6,6 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/ziadrahmatullah/minimarket-app/apperror"
 	"github.com/ziadrahmatullah/minimarket-app/entity"
-	"github.com/ziadrahmatullah/minimarket-app/logger"
 	"github.com/ziadrahmatullah/minimarket-app/repository"
 	"github.com/ziadrahmatullah/minimarket-app/transactor"
 	"github.com/ziadrahmatullah/minimarket-app/util"
@@ -47,13 +46,10 @@ func (u *orderUsecase) AddOrder(ctx context.Context, order *entity.Order, produc
 	}
 	productQ := valueobject.NewQuery().Condition("product_code", valueobject.In, productCodes).Lock()
 	fetchedProducts, err := u.productRepo.Find(ctx, productQ)
-	// fetchedProducts, err := u.productRepo.FindUnique(ctx, productCodes)
 	if err != nil {
 		return nil, err
 	}
 	if len(productCodes) != len(fetchedProducts) {
-		logger.Log.Info(len(productCodes))
-		logger.Log.Info(len(fetchedProducts))
 		return nil, apperror.NewResourceNotFoundError("products", "product_code", productCodes)
 	}
 	for i, product := range fetchedProducts {
