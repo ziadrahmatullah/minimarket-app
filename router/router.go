@@ -6,13 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ziadrahmatullah/minimarket-app/apperror"
+	"github.com/ziadrahmatullah/minimarket-app/entity"
 	"github.com/ziadrahmatullah/minimarket-app/handler"
 	"github.com/ziadrahmatullah/minimarket-app/middleware"
 )
 
 type Handlers struct {
-	User *handler.UserHandler
-	Auth *handler.AuthHandler
+	User    *handler.UserHandler
+	Auth    *handler.AuthHandler
+	Product *handler.ProductHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -31,6 +33,8 @@ func New(handlers Handlers) http.Handler {
 	auth.POST("/register", handlers.Auth.Register)
 	auth.POST("/login", handlers.Auth.Login)
 
+	product := router.Group("/products")
+	product.POST("", middleware.Auth(entity.RoleUser), handlers.Product.AddProduct)
 	return router
 }
 

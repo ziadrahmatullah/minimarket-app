@@ -12,6 +12,7 @@ type Product struct {
 	Name              string `gorm:"not null"`
 	ProductCategoryId uint   `gorm:"not null"`
 	ProductCategory   ProductCategory
+	ProductCode       string          `gorm:"not null"`
 	Stock             int             `gorm:"not null"`
 	Price             decimal.Decimal `gorm:"not null"`
 	CreatedAt         time.Time

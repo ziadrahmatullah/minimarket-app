@@ -34,9 +34,15 @@ func main() {
 	authU := usecase.NewAuthUsecase(userR, jwt, hash)
 	authH := handler.NewAuthHandler(authU)
 
+	productCategoryR := repository.NewProductCategoryRepository(db)
+	productR := repository.NewProductRepository(db)
+	productU := usecase.NewProductUsecase(productR, productCategoryR)
+	productH := handler.NewProductHandler(productU)
+
 	handlers := router.Handlers{
-		User: userH,
-		Auth: authH,
+		User:    userH,
+		Auth:    authH,
+		Product: productH,
 	}
 
 	r := router.New(handlers)
